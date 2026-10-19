@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Petualangan Menuju Moksa</title>
+<style>
+:root{--bg:#fff7ea;--card:#fff;--ink:#2b2118;--mut:#6b5a48;--pri:#b8470f;--gold:#e8a317;--ok:#2e7d32;--bad:#c62828;--line:#ecd9b8}
+@media(prefers-color-scheme:dark){:root{--bg:#1d1610;--card:#2a2018;--ink:#f6ead6;--mut:#c2ad8f;--pri:#f08a4b;--ok:#6fcf74;--bad:#ff7b72;--line:#4a3a2a}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+.wrap{max-width:820px;margin:auto;padding:16px}
+header{text-align:center;padding:18px 8px 4px}
+h1{margin:0;font-size:1.6rem;color:var(--pri)}
+header p{margin:4px 0 0;color:var(--mut)}
+.path{display:flex;gap:8px;margin:16px 0}
+.gate{flex:1;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 4px;font-size:.85rem;cursor:pointer}
+.gate.on{border-color:var(--pri);box-shadow:0 0 0 3px var(--gold)}
+.gate:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+h2{margin-top:0;color:var(--pri)}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input[type=text],input[type=number],select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:1rem;background:var(--bg);color:var(--ink)}
+button.btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:11px 20px;font-size:1rem;cursor:pointer;margin:8px 8px 0 0}
+button.btn.alt{background:var(--mut)}
+button.btn:disabled{opacity:.5}
+table{border-collapse:collapse;width:100%;font-size:.92rem;display:block;overflow-x:auto}
+td,th{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{background:var(--gold);color:#2b2118}
+.q{border-top:1px dashed var(--line);padding:12px 0}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:8px;cursor:pointer}
+.opt:hover{background:var(--bg)}
+.opt input{margin-top:6px}
+.q.ok{border-left:4px solid var(--ok);padding-left:10px}
+.q.bad{border-left:4px solid var(--bad);padding-left:10px}
+.fb{font-size:.9rem;font-weight:600;margin-top:4px}
+.ok .fb{color:var(--ok)}.bad .fb{color:var(--bad)}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--pri)}
+.big{font-size:2.4rem;font-weight:700;color:var(--pri)}
+.note{color:var(--mut);font-size:.88rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>🕉️ Petualangan Menuju Moksa</h1>
+<p>Pendidikan Agama Hindu dan Budi Pekerti · Kelas XII</p>
+<p class="note">Tingkatan Moksa dan Implementasinya dalam Kehidupan Sehari-hari</p>
+</header>
+<div class="path" id="path"></div>
+
+<!-- TAHAP 1 -->
+<section class="card stage" id="s1">
+<h2>🚪 Gerbang 1: Identitas Petualang</h2>
+<p>Isi identitasmu dengan benar untuk membuka gerbang pertama.</p>
+<label for="nama">Nama Lengkap</label>
+<input type="text" id="nama" placeholder="Ketik nama lengkapmu" autocomplete="off">
+<label for="absen">Nomor Absen</label>
+<input type="number" id="absen" min="1" max="60" placeholder="Contoh: 12">
+<label for="kelas">Kelas</label>
+<select id="kelas"><option value="">-- Pilih kelas --</option>
+<option>XII-A</option><option>XII-B</option><option>XII-C</option><option>XII-D</option><option>XII-E</option><option>XII-F</option><option>XII-G</option></select>
+<p id="e1" class="fb" style="color:var(--bad)"></p>
+<button class="btn" id="b1">Mulai Petualangan ➜</button>
+</section>
+
+<!-- TAHAP 2 -->
+<section class="card stage" id="s2" hidden>
+<h2>📜 Gerbang 2: Gulungan Materi</h2>
+<div class="bar"><i id="pbar"></i></div>
+<div id="mat"></div>
+<button class="btn alt" id="prev">◀ Sebelumnya</button>
+<button class="btn" id="next">Berikutnya ▶</button>
+</section>
+
+<!-- TAHAP 3 -->
+<section class="card stage" id="s3" hidden>
+<h2>🧭 Gerbang 3: Uji Pemahaman</h2>
+<p>Jawab 5 soal pilihan ganda (A–E). Kamu perlu minimal <b>3 jawaban benar</b> untuk membuka gerbang terakhir. Boleh mengulang.</p>
+<div id="q3"></div>
+<p id="r3" class="fb"></p>
+<button class="btn" id="c3">Periksa Jawaban</button>
+<button class="btn alt" id="re3" hidden>Ulangi Uji</button>
+<button class="btn" id="n3" hidden>Lanjut ke Gerbang 4 ➜</button>
+</section>
+
+<!-- TAHAP 4 -->
+<section class="card stage" id="s4" hidden>
+<h2>🏆 Gerbang 4: Asesmen Formatif</h2>
+<p><b>Bagian A.</b> Pilihan ganda (pilih satu jawaban).</p>
+<div id="q4a"></div>
+<p><b>Bagian B.</b> Pilihan ganda kompleks (pilih <u>semua</u> jawaban yang benar).</p>
+<div id="q4b"></div>
+<p id="e4" class="fb" style="color:var(--bad)"></p>
+<button class="btn" id="c4">Kirim Jawaban Akhir</button>
+<div id="res" hidden>
+<div class="card" style="text-align:center;margin-top:16px">
+<div>Selamat, <b id="rn"></b> (<span id="rk"></span>)!</div>
+<div class="big" id="rs"></div>
+<div id="rd" class="note"></div>
+<p id="rsend" class="note"></p>
+<button class="btn alt" id="resend" hidden>Kirim Ulang Rekap</button>
+</div>
+</div>
+</section>
+</div>
+
+<script>
+/* ====== PENGATURAN ====== */
+// Tempel URL Web App Google Apps Script di antara tanda kutip (lihat Panduan).
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwE4gtWEohV6qD4hgK9p1iHSekEmpO0BZfHkuFp9P7JUkSiQvCcSZCzUcJvDxaxczq9zQ/exec";
+const KKM = 3; // minimal benar pada Tahap 3
+
+/* ====== MATERI ====== */
+const P = [
+["🏔️ Gulungan 1: Makna dan Tujuan Moksa", `
+<p><b>Moksa</b> berasal dari bahasa Sanskerta, akar kata <i>muc</i> atau <i>mukti</i>, yang berarti <b>bebas, lepas, terbebas</b>. Moksa adalah kebebasan atman dari belenggu karma, kelahiran kembali (<i>punarbhawa/samsara</i>), dan ikatan duniawi, sehingga atman menyatu dengan Brahman (Tuhan Yang Maha Esa).</p>
+<p>Moksa adalah tujuan tertinggi umat Hindu. Tujuan ini dirumuskan dalam sloka: <b>"Moksartham Jagadhita ya ca iti dharma"</b>, yaitu dharma bertujuan untuk mencapai <b>moksa (kebahagiaan rohani/abadi)</b> dan <b>jagadhita (kesejahteraan dunia)</b>.</p>
+<p>Moksa juga merupakan bagian terakhir <b>Catur Purusartha</b> (empat tujuan hidup): <b>Dharma</b> (kebenaran), <b>Artha</b> (harta/materi), <b>Kama</b> (keinginan/kesenangan), dan <b>Moksa</b> (kebebasan abadi). Artha dan Kama harus dicari berlandaskan Dharma agar mengantarkan pada Moksa.</p>
+<p>Kitab suci Weda dan Bhagawadgita mengajarkan bahwa moksa bukan hanya urusan setelah meninggal, tetapi juga <b>dilatih sejak sekarang</b> melalui cara berpikir, berkata, dan bertindak.</p>`],
+["🔥 Gulungan 2: Tingkatan Moksa", `
+<p>Menurut ajaran Hindu, moksa memiliki tingkatan sesuai kedekatan atman dengan Brahman:</p>
+<table><tr><th>Tingkatan</th><th>Pengertian</th></tr>
+<tr><td><b>1. Samipya</b></td><td>Atman merasa <b>dekat</b> dengan Tuhan karena kesadaran spiritual yang tinggi, dicapai melalui bhakti dan pengendalian diri selama hidup.</td></tr>
+<tr><td><b>2. Sarupya</b></td><td>Atman memperoleh <b>kesamaan rupa/sifat</b> dengan Tuhan; sifat-sifat ilahi (welas asih, bijaksana, tenang) tampak pada diri.</td></tr>
+<tr><td><b>3. Salokya</b></td><td>Atman mencapai <b>kesamaan alam/kedudukan</b> dengan Tuhan, berada dalam alam kesadaran yang sama.</td></tr>
+<tr><td><b>4. Sayujya</b></td><td>Atman <b>menyatu</b> dengan Brahman (<i>Anayujya</i>), tingkat tertinggi; tidak ada lagi perbedaan antara atman dan Brahman.</td></tr></table>
+<p>Berdasarkan <b>waktu pencapaiannya</b>, moksa juga dibedakan menjadi:</p>
+<table><tr><th>Jenis</th><th>Pengertian</th></tr>
+<tr><td><b>Jiwanmukti</b></td><td>Moksa yang dicapai <b>ketika masih hidup</b>; orang tersebut bebas dari ikatan suka-duka dan bekerja tanpa pamrih.</td></tr>
+<tr><td><b>Widehamukti</b></td><td>Moksa yang dicapai <b>setelah meninggal</b>, namun atman masih membawa sisa-sisa ikatan (<i>karma wasana</i>) yang tipis.</td></tr>
+<tr><td><b>Paramamukti</b></td><td>Moksa <b>tertinggi</b>; atman sepenuhnya lepas dari segala ikatan dan menyatu dengan Brahman.</td></tr></table>`],
+["🛤️ Gulungan 3: Jalan Menuju Moksa", `
+<p>Moksa dicapai melalui <b>Catur Marga Yoga</b> (empat jalan yang saling melengkapi):</p>
+<ul><li><b>Bhakti Marga</b>: jalan cinta kasih dan bakti kepada Tuhan (sembahyang, persembahan, kidung suci).</li>
+<li><b>Jnana Marga</b>: jalan pengetahuan (belajar, merenungkan ajaran Weda, mencari kebijaksanaan).</li>
+<li><b>Karma Marga</b>: jalan kerja tanpa pamrih, bekerja sebagai persembahan.</li>
+<li><b>Raja Marga</b>: jalan pengendalian diri melalui disiplin batin, meditasi, dan yoga.</li></ul>
+<p>Landasan etikanya adalah <b>Tri Kaya Parisudha</b> (berpikir, berkata, dan berbuat yang suci/benar), <b>Yama-Niyama Brata</b> (pengendalian dan penataan diri), serta pemahaman <b>Karmaphala</b> (setiap perbuatan membawa hasil).</p>
+<p>Bhagawadgita mengajarkan <b>Karma Yoga</b>: lakukan kewajiban dengan sungguh-sungguh tanpa terikat pada hasilnya. Sikap inilah yang membebaskan seseorang dari ikatan karma.</p>`],
+["🌿 Gulungan 4: Implementasi dalam Kehidupan Sehari-hari", `
+<p>Moksa dapat dilatih lewat kebiasaan kecil yang konsisten:</p>
+<ul>
+<li><b>Di sekolah:</b> jujur saat ujian (tidak menyontek), disiplin waktu, menghormati guru dan teman (Tri Kaya Parisudha), belajar dengan tekun (Jnana Marga).</li>
+<li><b>Di keluarga:</b> berbakti kepada orang tua, rutin sembahyang (Bhakti Marga), membantu pekerjaan rumah dengan ikhlas (Karma Marga).</li>
+<li><b>Di masyarakat:</b> ngayah dan gotong royong tanpa pamrih, menjaga kerukunan antarumat beragama, menjaga lingkungan (Tri Hita Karana).</li>
+<li><b>Di dunia digital:</b> tidak menyebar hoaks atau ujaran kebencian, bijak menggunakan gawai, berlatih hening sejenak/meditasi untuk mengendalikan emosi (Raja Marga).</li>
+<li><b>Dalam sikap batin:</b> bersyukur, tidak iri dan serakah, tidak terikat berlebihan pada pujian atau hasil, serta menerima suka-duka dengan tenang seperti ciri Jiwanmukti.</li>
+</ul>
+<p>Artha dan Kama tetap boleh dikejar sepanjang berdasarkan dharma, agar kehidupan duniawi (jagadhita) selaras dengan tujuan rohani (moksa).</p>`],
+["🌅 Gulungan 5: Rangkuman dan Refleksi", `
+<ul>
+<li>Moksa = bebas dari belenggu karma dan samsara; tujuan akhir hidup umat Hindu.</li>
+<li>Tingkatan: <b>Samipya → Sarupya → Salokya → Sayujya</b>.</li>
+<li>Menurut waktunya: <b>Jiwanmukti, Widehamukti, Paramamukti</b>.</li>
+<li>Jalan: <b>Catur Marga Yoga</b>, berlandaskan <b>Tri Kaya Parisudha</b>.</li>
+<li>Implementasi: jujur, disiplin, berbakti, ikhlas melayani, bijak bermedia, dan tenang menghadapi suka-duka.</li>
+</ul>
+<p><b>Refleksi:</b> Satu kebiasaan baik apa yang akan kamu mulai minggu ini sebagai langkah kecil menuju moksa?</p>
+<p>Klik tombol di bawah untuk membuka Gerbang 3.</p>`]
+];
+
+/* ====== SOAL ====== */
+// a = indeks jawaban benar (0=A). Tahap 3: 5 opsi.
+const U = [
+{q:"Kata moksa berasal dari akar kata muc/mukti yang berarti ....",o:["kaya raya","bebas atau terlepas","kembali lahir","bersemedi","berkuasa"],a:1},
+{q:"Tujuan agama Hindu yang tertuang dalam sloka \"Moksartham Jagadhita ya ca iti dharma\" adalah ....",o:["kekayaan dan kekuasaan","kesenangan duniawi semata","kebahagiaan rohani (moksa) dan kesejahteraan dunia (jagadhita)","kelahiran kembali berulang","menghindari semua pekerjaan"],a:2},
+{q:"Tingkatan moksa ketika atman merasa dekat dengan Tuhan karena kesadaran spiritual disebut ....",o:["Sayujya","Salokya","Sarupya","Samipya","Paramamukti"],a:3},
+{q:"Moksa yang dicapai ketika seseorang masih hidup disebut ....",o:["Widehamukti","Jiwanmukti","Paramamukti","Samipya","Punarbhawa"],a:1},
+{q:"Contoh penerapan Tri Kaya Parisudha di sekolah yang paling tepat adalah ....",o:["menyontek agar nilai bagus","berkata kasar kepada teman yang salah","jujur saat ujian dan santun dalam berbicara","menunda tugas sampai akhir","membicarakan keburukan teman"],a:2}
+];
+// Tahap 4 bagian A: 4 opsi
+const FP = [
+{q:"Tingkatan moksa tertinggi, ketika atman menyatu dengan Brahman, adalah ....",o:["Samipya","Sarupya","Salokya","Sayujya"],a:3},
+{q:"Atman memperoleh kesamaan rupa atau sifat ilahi dengan Tuhan disebut ....",o:["Sarupya","Samipya","Salokya","Sayujya"],a:0},
+{q:"Moksa yang dicapai setelah meninggal, namun masih ada sisa karma wasana yang tipis, disebut ....",o:["Jiwanmukti","Widehamukti","Paramamukti","Sayujya"],a:1},
+{q:"Sikap bekerja sungguh-sungguh tanpa terikat pada hasil sesuai ajaran Karma Yoga disebut bekerja ....",o:["dengan pamrih","karena terpaksa","tanpa pamrih","asal selesai"],a:2},
+{q:"Jalan menuju moksa melalui pengendalian diri, meditasi, dan yoga disebut ....",o:["Bhakti Marga","Jnana Marga","Karma Marga","Raja Marga"],a:3}
+];
+// Tahap 4 bagian B: 5 opsi, jawaban berupa kumpulan indeks (harus tepat semua)
+const FK = [
+{q:"Manakah yang termasuk tingkatan moksa? (pilih semua yang benar)",o:["Samipya","Sarupya","Ahimsa","Salokya","Sayujya"],a:[0,1,3,4]},
+{q:"Manakah yang termasuk Catur Marga Yoga? (pilih semua yang benar)",o:["Bhakti Marga","Jnana Marga","Tri Hita Karana","Karma Marga","Raja Marga"],a:[0,1,3,4]},
+{q:"Manakah contoh implementasi nilai moksa dalam kehidupan sehari-hari? (pilih semua yang benar)",o:["Jujur dan disiplin dalam belajar","Ngayah dan gotong royong tanpa pamrih","Menyebarkan berita bohong di media sosial","Bersyukur dan mengendalikan emosi","Membalas dendam kepada orang yang menyakiti"],a:[0,1,3]},
+{q:"Manakah ciri orang yang mendekati keadaan Jiwanmukti? (pilih semua yang benar)",o:["Tenang menghadapi suka dan duka","Melaksanakan dharma tanpa pamrih","Selalu iri terhadap keberhasilan orang lain","Tidak terikat berlebihan pada hasil","Mengejar harta dengan segala cara"],a:[0,1,3]}
+];
+
+/* ====== STATE & UTIL ====== */
+const $ = id => document.getElementById(id);
+const L = "ABCDE";
+const S = {unlocked:1, current:1, page:0, ujiTry:0, ujiBenar:0, sent:false, data:null};
+
+function path(){
+  const t = ["1 · Identitas","2 · Materi","3 · Uji","4 · Asesmen"];
+  $("path").innerHTML = t.map((x,i)=>{
+    const n=i+1, lock=n>S.unlocked, done=n<S.unlocked;
+    return `<button class="gate ${n===S.current?'on':''}" data-n="${n}" ${lock?'disabled':''}>${lock?'🔒':done?'✅':'🔓'}<br>${x}</button>`;
+  }).join("");
+  document.querySelectorAll(".gate").forEach(b=>b.onclick=()=>go(+b.dataset.n));
+}
+function go(n){
+  if(n>S.unlocked) return;
+  S.current=n;
+  document.querySelectorAll(".stage").forEach((e,i)=>e.hidden = (i+1!==n));
+  path(); window.scrollTo({top:0,behavior:"smooth"});
+}
+function unlock(n){ if(n>S.unlocked) S.unlocked=n; go(n); }
+
+/* Render soal: type radio / checkbox */
+function quiz(el, list, type, pre){
+  el.innerHTML = list.map((it,i)=>`<div class="q" id="${pre}q${i}"><b>${i+1}. ${it.q}</b>`+
+    it.o.map((o,j)=>`<label class="opt"><input type="${type}" name="${pre}${i}" value="${j}"><span>${L[j]}. ${o}</span></label>`).join("")+
+    `<div class="fb"></div></div>`).join("");
+}
+function picked(pre,i){
+  return [...document.querySelectorAll(`input[name="${pre}${i}"]:checked`)].map(x=>+x.value);
+}
+
+/* ====== TAHAP 1 ====== */
+$("b1").onclick = ()=>{
+  const nama=$("nama").value.trim(), absen=$("absen").value.trim(), kelas=$("kelas").value;
+  if(nama.length<3){$("e1").textContent="Nama lengkap wajib diisi (minimal 3 huruf).";return;}
+  if(!absen || +absen<1){$("e1").textContent="Nomor absen wajib diisi.";return;}
+  if(!kelas){$("e1").textContent="Pilih kelasmu terlebih dahulu.";return;}
+  $("e1").textContent="";
+  S.nama=nama; S.absen=absen; S.kelas=kelas;
+  page(0); unlock(2);
+};
+
+/* ====== TAHAP 2 ====== */
+function page(i){
+  S.page=i;
+  $("mat").innerHTML=`<h3>${P[i][0]}</h3>`+P[i][1];
+  $("pbar").style.width=((i+1)/P.length*100)+"%";
+  $("prev").disabled=(i===0);
+  $("next").textContent = i===P.length-1 ? "Selesai Membaca ✔ Buka Gerbang 3" : "Berikutnya ▶";
+}
+$("prev").onclick=()=>page(S.page-1);
+$("next").onclick=()=>{
+  if(S.page<P.length-1){page(S.page+1);window.scrollTo({top:0,behavior:"smooth"});}
+  else{ quiz($("q3"),U,"radio","u"); $("r3").textContent=""; $("c3").hidden=false; $("re3").hidden=true; $("n3").hidden=true; unlock(3);}
+};
+
+/* ====== TAHAP 3 ====== */
+$("c3").onclick=()=>{
+  for(let i=0;i<U.length;i++) if(picked("u",i).length===0){$("r3").textContent="Jawab semua soal dahulu (soal nomor "+(i+1)+" belum dijawab).";return;}
+  let benar=0;
+  U.forEach((it,i)=>{
+    const ok = picked("u",i)[0]===it.a; if(ok) benar++;
+    const q=$("uq"+i); q.className="q "+(ok?"ok":"bad");
+    q.querySelector(".fb").textContent = ok ? "✔ Benar" : "✘ Kurang tepat. Jawaban benar: "+L[it.a];
+    q.querySelectorAll("input").forEach(x=>x.disabled=true);
+  });
+  S.ujiTry++; S.ujiBenar=benar; $("c3").hidden=true;
+  if(benar>=KKM){
+    $("r3").textContent=`Hebat! ${benar} dari ${U.length} soal benar. Gerbang 4 siap dibuka.`;
+    $("n3").hidden=false; $("re3").hidden=true;
+  } else {
+    $("r3").textContent=`${benar} dari ${U.length} benar. Butuh minimal ${KKM}. Baca kembali materi lalu coba lagi!`;
+    $("re3").hidden=false;
+  }
+};
+$("re3").onclick=()=>{ quiz($("q3"),U,"radio","u"); $("r3").textContent=""; $("c3").hidden=false; $("re3").hidden=true; };
+$("n3").onclick=()=>{ if(!$("q4a").innerHTML){quiz($("q4a"),FP,"radio","fa");quiz($("q4b"),FK,"checkbox","fb");} unlock(4); };
+
+/* ====== TAHAP 4 ====== */
+$("c4").onclick=()=>{
+  if(S.sent) return;
+  for(let i=0;i<FP.length;i++) if(!picked("fa",i).length){$("e4").textContent="Bagian A nomor "+(i+1)+" belum dijawab.";return;}
+  for(let i=0;i<FK.length;i++) if(!picked("fb",i).length){$("e4").textContent="Bagian B nomor "+(i+1)+" belum dijawab.";return;}
+  $("e4").textContent="";
+  let a=0,b=0;
+  FP.forEach((it,i)=>{
+    const ok=picked("fa",i)[0]===it.a; if(ok)a++;
+    mark("fa"+"q"+i,ok,"Jawaban benar: "+L[it.a]);
+  });
+  FK.forEach((it,i)=>{
+    const p=picked("fb",i).join(), ok=p===it.a.join(); if(ok)b++;
+    mark("fbq"+i,ok,"Jawaban benar: "+it.a.map(x=>L[x]).join(", "));
+  });
+  const nilai = Math.round((a*10 + b*(50/FK.length))*10)/10;
+  S.sent=true; $("c4").hidden=true;
+  S.data={nama:S.nama,kelas:S.kelas,absen:S.absen,
+    uji_benar:S.ujiBenar,uji_percobaan:S.ujiTry,
+    formatif_pg_benar:a,formatif_kompleks_benar:b,nilai_akhir:nilai};
+  $("rn").textContent=S.nama; $("rk").textContent=S.kelas; $("rs").textContent=nilai;
+  $("rd").textContent=`PG benar: ${a}/${FP.length} · PG kompleks benar: ${b}/${FK.length} · Uji pemahaman: ${S.ujiBenar}/${U.length}`;
+  $("res").hidden=false; document.querySelectorAll("#s4 input").forEach(x=>x.disabled=true);
+  kirim();
+};
+function mark(id,ok,txt){
+  const q=$(id); q.className="q "+(ok?"ok":"bad");
+  q.querySelector(".fb").textContent = ok ? "✔ Benar" : "✘ "+txt;
+}
+
+/* ====== KIRIM KE GOOGLE SHEETS ====== */
+function jsonp(params,ms){
+  return new Promise((res,rej)=>{
+    const cb="cb"+Date.now()+Math.floor(Math.random()*1e4), s=document.createElement("script");
+    const t=setTimeout(()=>{cl();rej(new Error("timeout"));},ms);
+    function cl(){clearTimeout(t);delete window[cb];s.remove();}
+    window[cb]=r=>{cl();res(r);};
+    s.onerror=()=>{cl();rej(new Error("gagal"));};
+    s.src=SCRIPT_URL+"?"+new URLSearchParams({...params,callback:cb}).toString();
+    document.head.appendChild(s);
+  });
+}
+async function kirim(){
+  const m=$("rsend"); $("resend").hidden=true;
+  if(!SCRIPT_URL){m.textContent="Mode uji coba: SCRIPT_URL belum diisi, nilai tidak tersimpan.";return;}
+  if(!S.data.kid) S.data.kid=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  let err="";
+  for(let i=1;i<=3;i++){
+    m.textContent="Menyimpan nilai ke Google Spreadsheet"+(i>1?" (percobaan "+i+")":"")+"...";
+    try{
+      const r=await jsonp(S.data,10000);
+      if(r&&r.ok){m.textContent="✅ Nilai berhasil tersimpan otomatis di Google Spreadsheet guru.";return;}
+      err=(r&&r.error)||"respon tidak valid";
+    }catch(e){err=e.message;}
+  }
+  try{ // cadangan: kirim POST (tanpa konfirmasi)
+    await fetch(SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(S.data)});
+    m.textContent="⚠️ Nilai terkirim namun belum terkonfirmasi ("+err+"). Jika ragu, tekan Kirim Ulang atau lapor ke guru.";
+  }catch(e){
+    m.textContent="⚠️ Gagal menyimpan. Periksa internet lalu tekan Kirim Ulang Rekap.";
+  }
+  $("resend").hidden=false;
+}
+$("resend").onclick=kirim;
+
+path(); go(1);
+</script>
+</body>
+</html>
